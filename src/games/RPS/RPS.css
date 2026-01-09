@@ -1,0 +1,135 @@
+.rps-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 100%;
+  margin: 0;
+  width: 100%;
+  flex: 1;
+  justify-content: center;
+}
+
+.battle-area {
+  width: 100%;
+  background: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: var(--shadow-md);
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.instruction {
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.options-grid {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.option-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid transparent;
+  padding: 2rem;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-main);
+  transition: all 0.2s;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.option-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-8px);
+  border-color: var(--highlight);
+}
+
+.icon-wrapper {
+  color: var(--highlight);
+}
+
+.icon-wrapper.large {
+  transform: scale(1.5);
+  margin: 1.5rem 0;
+}
+
+.result-phase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.versus-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  width: 100%;
+}
+
+.player-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.player-result.winner {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.player-result.winner .icon-wrapper {
+  color: var(--secondary);
+  filter: drop-shadow(0 0 10px rgba(44, 182, 125, 0.5));
+}
+
+.vs {
+  font-size: 2rem;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--tertiary);
+}
+
+.outcome-message {
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.outcome-message.win {
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+}
+.outcome-message.loss {
+  color: var(--tertiary);
+  border: 1px solid var(--tertiary);
+}
+.outcome-message.draw {
+  color: var(--text-secondary);
+  border: 1px solid var(--text-secondary);
+}
+
+.animate-pop {
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
