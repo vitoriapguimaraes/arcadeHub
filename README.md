@@ -2,7 +2,7 @@
 
 > ArcadeHub é uma plataforma web moderna que consolida diversos jogos clássicos e interativos em uma única interface unificada. Este projeto representa a evolução e persistência no aprendizado de desenvolvimento Fullstack, migrando jogos originalmente criados em diferentes tecnologias (Python, JS puro, HTML/CSS) para uma aplicação React robusta e responsiva.
 
-![Demonstração do ArcadeHub](https://github.com/vitoriapguimaraes/arcadeHub/blob/main/demonstrations/screenshot_home.png)
+![Demonstração do ArcadeHub](https://github.com/vitoriapguimaraes/arcadeHub/blob/main/demonstrations/printshot_home.png)
 
 ## 🎮 Jogos Incluídos
 
@@ -27,17 +27,19 @@ Inspirado no League of Legends.
 Inspirado na série Round 6.
 
 - **Funcionalidade**: Atravesse uma ponte de vidro onde cada passo é uma chance de 50/50.
-- **Destaque**: Níveis de dificuldade (Fácil/Médio/Difícil) e tensão a cada clique.
+- **Destaque**: Sistema de 3 vidas com memória de caminho, câmera dinâmica que acompanha o jogador, e 4 níveis de dificuldade (Intro/Fácil/Médio/Difícil).
 
 ### 4. Adivinhação (Guessing)
 
 Fusão dos projetos "Mentalista" e "Número Secreto".
 
 - **Funcionalidade**: Tente acertar o número gerado pelo sistema com dicas de "Quente/Frio" ou "Maior/Menor".
+- **Destaque**: Dois modos de jogo (0-10 e 1-100) com feedback visual instantâneo.
 
 ### 5. Jokenpô (Rock, Paper, Scissors)
 
 - **Funcionalidade**: O clássico Pedra, Papel e Tesoura com uma interface moderna.
+- **Destaque**: Arena persistente com revelação dramática da escolha da CPU e animações de vitória/derrota.
 
 ---
 
@@ -59,17 +61,21 @@ Esses projetos serviram de base para a refatoração completa encontrada na past
 
 ## Funcionalidades Principais
 
-- **Dashboard Unificado**: Acesso centralizado a todos os jogos com uma UI moderna (Dark Theme).
-- **Barra Lateral de Navegação**: Facilita a transição entre diferentes jogos.
-- **Responsividade**: Layout adaptável para telas grandes e dispositivos móveis (100% viewport).
-- **Sem Backend Obrigatório**: Toda a lógica foi migrada para o cliente (Client-Side), facilitando o deploy.
-- **Customização**: Temas de cores variáveis por jogo.
+- **Dashboard Unificado**: Acesso centralizado a todos os jogos com uma UI moderna e tema dark.
+- **Navegação Fluida**: Sidebar responsiva com transições suaves entre páginas usando Framer Motion.
+- **Backgrounds Temáticos**: Cada jogo possui gradientes dinâmicos que mudam conforme a navegação.
+- **Sistema de Placar**: Rastreamento de vitórias e derrotas por sessão em todos os jogos.
+- **Animações Avançadas**: Micro-interações, efeitos hover, e feedback visual em tempo real.
+- **100% Client-Side**: Sem necessidade de backend, facilitando deploy e hospedagem.
+- **Responsividade**: Layout adaptável para desktop e mobile (em desenvolvimento).
 
 ## Tecnologias Utilizadas
 
-- **Frontend**: React, Vite
-- **Estilização**: CSS Modules, Variáveis CSS (Dark Mode), Lucide React (Ícones)
-- **Roteamento**: React Router Dom
+- **Frontend**: React 18 + Vite
+- **Estilização**: Tailwind CSS 3, Framer Motion (animações)
+- **Roteamento**: React Router Dom v6
+- **Ícones**: Lucide React
+- **API Externa**: Riot Games API (League of Legends - Tug of War)
 - **Linguagens**: JavaScript (ES6+), HTML5, CSS3
 
 ## Como Executar
@@ -102,9 +108,9 @@ Esses projetos serviram de base para a refatoração completa encontrada na past
 
 ## Status
 
-🚧 Em desenvolvimento
+✅ Concluído
 
-> Veja as [issues abertas](https://github.com/vitoriapguimaraes/arcadeHub/issues) para sugestões de melhorias como Leaderboards e Multiplayer.
+> Veja as [issues abertas](https://github.com/vitoriapguimaraes/arcadeHub/issues) para sugestões de melhorias.
 
 ## Mais Sobre Mim
 
