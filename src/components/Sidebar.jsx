@@ -81,7 +81,7 @@ const Sidebar = () => {
 
       <footer className="sidebar-footer">
         <p>&copy; 2026 ArcadeHub.</p>
-        <p>Built with React & Python.</p>
+        <p>github.com/vitoriapguimaraes</p>
       </footer>
     </aside>
   );

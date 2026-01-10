@@ -1,57 +1,6 @@
 import { useState, useEffect } from "react";
-import { RefreshCw, Play } from "lucide-react";
+import { RefreshCw, Play, Trophy, XCircle, ArrowLeft } from "lucide-react";
 import "./Hangman.css";
-
-const CATEGORIES = {
-  frutas: [
-    "morango",
-    "banana",
-    "laranja",
-    "uva",
-    "abacaxi",
-    "kiwi",
-    "amora",
-    "melancia",
-  ],
-  animais: [
-    "leão",
-    "tigre",
-    "elefante",
-    "cachorro",
-    "gato",
-    "golfinho",
-    "baleia",
-    "aguia",
-  ],
-  países: [
-    "brasil",
-    "canadá",
-    "japão",
-    "austrália",
-    "alemanha",
-    "méxico",
-    "argentina",
-  ],
-  cores: [
-    "vermelho",
-    "azul",
-    "verde",
-    "amarelo",
-    "roxo",
-    "laranja",
-    "ciano",
-    "magenta",
-  ],
-  objetos: [
-    "cadeira",
-    "mesa",
-    "computador",
-    "telefone",
-    "lápis",
-    "mochila",
-    "janela",
-  ],
-};
 
 // Simple accent removal for comparison
 const normalize = (str) =>
@@ -61,8 +10,10 @@ const normalize = (str) =>
     .toLowerCase();
 
 const Hangman = () => {
+  const [categoriesData, setCategoriesData] = useState(null);
+  const [score, setScore] = useState({ wins: 0, losses: 0 });
   const [gameState, setGameState] = useState({
-    status: "start", // start, playing, won, lost
+    status: "loading", // loading, select_category, playing, won, lost
     word: "",
     category: "",
     lettersChosen: [],
@@ -71,21 +22,52 @@ const Hangman = () => {
     maxMistakes: 6,
   });
 
-  const startGame = () => {
-    const categories = Object.keys(CATEGORIES);
-    const randomCat = categories[Math.floor(Math.random() * categories.length)];
-    const words = CATEGORIES[randomCat];
+  // Fetch words on mount
+  useEffect(() => {
+    fetch("/hangman_words.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategoriesData(data);
+        setGameState((prev) => ({ ...prev, status: "select_category" }));
+      })
+      .catch((err) => {
+        console.error("Failed to load words:", err);
+      });
+  }, []);
+
+  const selectCategory = (category) => {
+    if (!categoriesData) return;
+    const words = categoriesData[category];
     const randomWord = words[Math.floor(Math.random() * words.length)];
 
     setGameState({
       status: "playing",
       word: randomWord.toLowerCase(),
-      category: randomCat.toUpperCase(),
+      category: category.toUpperCase(),
       lettersChosen: [],
       lettersWrong: [],
       mistakes: 0,
       maxMistakes: 6,
     });
+  };
+
+  const resetGame = () => {
+    setGameState((prev) => ({ ...prev, status: "select_category" }));
+  };
+
+  const restartCurrentCategory = () => {
+    if (!gameState.category) return resetGame();
+    const catKey = gameState.category.toLowerCase();
+    selectCategory(catKey);
+  };
+
+  const resetSession = () => {
+    setScore({ wins: 0, losses: 0 });
+    setGameState((prev) => ({
+      ...prev,
+      status: "select_category",
+      category: "",
+    }));
   };
 
   const makeGuess = (letter) => {
@@ -114,16 +96,20 @@ const Hangman = () => {
     // Check Win/Loss
     const isWon = gameState.word.split("").every((char) => {
       const normChar = normalize(char);
-      // If char is space or special, ignore or handle?
-      // Assuming simple words for now.
       return newLettersChosen.some((l) => normalize(l) === normChar);
     });
 
     const isLost = newMistakes >= gameState.maxMistakes;
 
     let newStatus = "playing";
-    if (isWon) newStatus = "won";
-    if (isLost) newStatus = "lost";
+    if (isWon) {
+      newStatus = "won";
+      setScore((s) => ({ ...s, wins: s.wins + 1 }));
+    }
+    if (isLost) {
+      newStatus = "lost";
+      setScore((s) => ({ ...s, losses: s.losses + 1 }));
+    }
 
     setGameState({
       ...gameState,
@@ -146,14 +132,11 @@ const Hangman = () => {
     });
   };
 
-  if (gameState.status === "start") {
+  // Loading Screen
+  if (gameState.status === "loading") {
     return (
-      <div className="hangman-container start-screen">
-        <h1 className="game-title">Jogo da Forca</h1>
-        <p>Descubra a palavra secreta!</p>
-        <button onClick={startGame} className="btn-primary">
-          <Play size={24} /> Começar Jogo
-        </button>
+      <div className="hangman-container">
+        <div className="loader">Carregando banco de palavras...</div>
       </div>
     );
   }
@@ -162,87 +145,181 @@ const Hangman = () => {
   const displayWord = getDisplayWord();
 
   return (
-    <div className="hangman-container game-screen">
-      <div className="game-header">
-        <span className="badge category-badge">
-          Categoria: {gameState.category}
-        </span>
-        <span className="badge mistakes-badge">
-          Erros: {gameState.mistakes} / {gameState.maxMistakes}
-        </span>
-      </div>
-
-      <div className="hangman-visual">
-        <svg viewBox="0 0 200 250" className="hangman-svg">
-          <line x1="20" y1="230" x2="100" y2="230" className="gallows" />
-          <line x1="60" y1="230" x2="60" y2="20" className="gallows" />
-          <line x1="60" y1="20" x2="140" y2="20" className="gallows" />
-          <line x1="140" y1="20" x2="140" y2="50" className="gallows" />
-
-          {gameState.mistakes >= 1 && (
-            <circle cx="140" cy="70" r="20" className="body-part" />
-          )}
-          {gameState.mistakes >= 2 && (
-            <line x1="140" y1="90" x2="140" y2="150" className="body-part" />
-          )}
-          {gameState.mistakes >= 3 && (
-            <line x1="140" y1="100" x2="110" y2="130" className="body-part" />
-          )}
-          {gameState.mistakes >= 4 && (
-            <line x1="140" y1="100" x2="170" y2="130" className="body-part" />
-          )}
-          {gameState.mistakes >= 5 && (
-            <line x1="140" y1="150" x2="120" y2="190" className="body-part" />
-          )}
-          {gameState.mistakes >= 6 && (
-            <line x1="140" y1="150" x2="160" y2="190" className="body-part" />
-          )}
-        </svg>
-      </div>
-
-      <div className="word-display">
-        {displayWord.map((char, i) => (
-          <span
-            key={i}
-            className={`char ${char === "_" ? "hidden" : "visible"}`}
-          >
-            {char}
+    <div className="hangman-container">
+      {/* Persistent Header */}
+      <div className="start-header-row">
+        <h1 className="game-title">Jogo da Forca</h1>
+        <p className="start-instruction">
+          {gameState.status === "select_category"
+            ? "Escolha uma categoria para começar:"
+            : "Boa sorte!"}
+        </p>
+        <div className="session-score-header">
+          <span>Sessão: </span>
+          <span className="win-count">
+            <Trophy size={16} /> {score.wins}
           </span>
-        ))}
-      </div>
-
-      <div className="keyboard">
-        {alphabet.map((letter) => {
-          const isChosen = gameState.lettersChosen.includes(letter);
-          const isWrong = gameState.lettersWrong.includes(letter);
-          let statusClass = "";
-          if (isChosen) statusClass = "correct";
-          if (isWrong) statusClass = "wrong";
-
-          return (
-            <button
-              key={letter}
-              onClick={() => makeGuess(letter)}
-              disabled={gameState.status !== "playing" || isChosen || isWrong}
-              className={`key-btn ${statusClass}`}
-            >
-              {letter}
-            </button>
-          );
-        })}
-      </div>
-
-      {(gameState.status === "won" || gameState.status === "lost") && (
-        <div className="game-over-modal">
-          <h2>{gameState.status === "won" ? "Vitória!" : "Derrota!"}</h2>
-          <p>
-            {gameState.status === "won"
-              ? "Parabéns! Você venceu!!!"
-              : `A palavra era: ${gameState.word}`}
-          </p>
-          <button onClick={startGame} className="btn-primary">
-            <RefreshCw size={20} /> Jogar Novamente
+          <span className="loss-count">
+            <XCircle size={16} /> {score.losses}
+          </span>
+          <button
+            onClick={resetSession}
+            className="btn-reset-session"
+            title="Resetar Sessão"
+          >
+            <RefreshCw size={16} />
           </button>
+        </div>
+      </div>
+
+      {/* Persistent Category Selection & Game Status */}
+      <div className="category-status-row">
+        <div
+          className={`category-grid ${
+            gameState.status !== "select_category" ? "compact" : ""
+          }`}
+        >
+          {categoriesData &&
+            Object.keys(categoriesData).map((cat) => (
+              <button
+                key={cat}
+                className={`btn-category ${
+                  gameState.category === cat.toUpperCase() ? "active" : ""
+                }`}
+                onClick={() => selectCategory(cat)}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
+        </div>
+
+        {/* Game Status Notification (Right Side) */}
+        {(gameState.status === "won" || gameState.status === "lost") && (
+          <div className={`game-result-badge ${gameState.status}`}>
+            <div className="result-info">
+              <strong>
+                {gameState.status === "won" ? "Vitória!" : "Derrota!"}
+              </strong>
+              <span className="result-text">
+                {gameState.status === "won"
+                  ? "Muito bem!"
+                  : `Era: ${gameState.word.toUpperCase()}`}
+              </span>
+            </div>
+            <button
+              onClick={() => selectCategory(gameState.category.toLowerCase())}
+              className="btn-play-again-mini"
+              title="Jogar Novamente nesta Categoria"
+            >
+              <RefreshCw size={18} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Game Content - Visible when playing or finished */}
+      {gameState.status !== "select_category" && (
+        <div className="game-content animate-fade-in">
+          <div className="hangman-visual">
+            <svg viewBox="0 0 200 250" className="hangman-svg">
+              <line x1="20" y1="230" x2="100" y2="230" className="gallows" />
+              <line x1="60" y1="230" x2="60" y2="20" className="gallows" />
+              <line x1="60" y1="20" x2="140" y2="20" className="gallows" />
+              <line x1="140" y1="20" x2="140" y2="50" className="gallows" />
+
+              {gameState.mistakes >= 1 && (
+                <circle cx="140" cy="70" r="20" className="body-part" />
+              )}
+              {gameState.mistakes >= 2 && (
+                <line
+                  x1="140"
+                  y1="90"
+                  x2="140"
+                  y2="150"
+                  className="body-part"
+                />
+              )}
+              {gameState.mistakes >= 3 && (
+                <line
+                  x1="140"
+                  y1="100"
+                  x2="110"
+                  y2="130"
+                  className="body-part"
+                />
+              )}
+              {gameState.mistakes >= 4 && (
+                <line
+                  x1="140"
+                  y1="100"
+                  x2="170"
+                  y2="130"
+                  className="body-part"
+                />
+              )}
+              {gameState.mistakes >= 5 && (
+                <line
+                  x1="140"
+                  y1="150"
+                  x2="120"
+                  y2="190"
+                  className="body-part"
+                />
+              )}
+              {gameState.mistakes >= 6 && (
+                <line
+                  x1="140"
+                  y1="150"
+                  x2="160"
+                  y2="190"
+                  className="body-part"
+                />
+              )}
+            </svg>
+
+            <button
+              onClick={restartCurrentCategory}
+              className="btn-restart-round"
+            >
+              <RefreshCw size={16} /> Reiniciar
+            </button>
+          </div>
+
+          <div className="play-area">
+            <div className="word-display">
+              {displayWord.map((char, i) => (
+                <span
+                  key={i}
+                  className={`char ${char === "_" ? "hidden" : "visible"}`}
+                >
+                  {char}
+                </span>
+              ))}
+            </div>
+
+            <div className="keyboard">
+              {alphabet.map((letter) => {
+                const isChosen = gameState.lettersChosen.includes(letter);
+                const isWrong = gameState.lettersWrong.includes(letter);
+                let statusClass = "";
+                if (isChosen) statusClass = "correct";
+                if (isWrong) statusClass = "wrong";
+
+                return (
+                  <button
+                    key={letter}
+                    onClick={() => makeGuess(letter)}
+                    disabled={
+                      gameState.status !== "playing" || isChosen || isWrong
+                    }
+                    className={`key-btn ${statusClass}`}
+                  >
+                    {letter}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
     </div>
