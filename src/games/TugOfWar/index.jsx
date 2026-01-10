@@ -110,142 +110,179 @@ const TugOfWar = () => {
     <div className="tug-of-war-container">
       <header className="game-header">
         <h1>League of Legends: Cabo de Guerra</h1>
-        <p>Escolha 3 campeões e veja se seu time é mais forte!</p>
+        <p>Monte seu time de 3 campeões e desafie os oponentes!</p>
       </header>
 
-      <div className="game-area">
-        <div className="team-section my-team">
-          <h2>
-            Seu Time{" "}
-            {gameResult && (
-              <span className="force-badge">{gameResult.myForce} XP</span>
-            )}
-          </h2>
-          <div className="team-slots">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="slot">
-                {myTeam[i] ? (
-                  <div className="champion-slot filled">
-                    <img
-                      src={getImageUrl(myTeam[i])}
-                      alt={champions[myTeam[i]].name}
-                    />
-                    <span>{champions[myTeam[i]].name}</span>
-                  </div>
-                ) : (
-                  <div className="champion-slot empty">?</div>
-                )}
+      <div className="game-content-wrapper">
+        {/* LEFT COLUMN: Champion Draft */}
+        <div className="draft-panel">
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Buscar campeão..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+
+          <div className="champions-grid-scroll">
+            {loading ? (
+              <div className="loading-spinner">
+                <RefreshCw className="spin" /> Carregando...
               </div>
-            ))}
+            ) : (
+              filteredChampions.map(([id, champ]) => {
+                const isSelected = myTeam.includes(id);
+                return (
+                  <div
+                    key={id}
+                    className={`champion-card-draft ${
+                      isSelected ? "selected" : ""
+                    }`}
+                    onClick={() => handleChampionSelect(id)}
+                  >
+                    <img
+                      src={getImageUrl(id)}
+                      alt={champ.name}
+                      loading="lazy"
+                    />
+                    <span className="caption">{champ.name}</span>
+                    <div className="stats-mini">
+                      <span className="stat-atk">⚔️ {champ.info.attack}</span>
+                      <span className="stat-def">🛡️ {champ.info.defense}</span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
-        <div className="battle-controls">
-          {isBattling ? (
-            <div className="battling-overlay">
-              <Swords size={48} className="swords-clash" />
-              <h3>BATALHANDO...</h3>
-            </div>
-          ) : gameResult ? (
-            <div className={`result-display ${gameResult.outcome}`}>
-              {gameResult.outcome === "win" && (
-                <>
-                  <Trophy size={48} />
-                  <h3>VITÓRIA!</h3>
-                </>
+        {/* RIGHT COLUMN: Battle Arena */}
+        <div className="arena-panel">
+          {/* My Team Section */}
+          <div className="team-section my-team">
+            <div className="team-header">
+              <h2>Seu Time</h2>
+              {gameResult && (
+                <span className="force-badge player">
+                  {gameResult.myForce} XP
+                </span>
               )}
-              {gameResult.outcome === "loss" && (
-                <>
-                  <Skull size={48} />
-                  <h3>DERROTA</h3>
-                </>
-              )}
-              {gameResult.outcome === "draw" && <h3>EMPATE</h3>}
-              <button onClick={resetGame} className="btn-reset">
-                <RefreshCw size={20} /> Jogar Novamente
-              </button>
             </div>
-          ) : (
-            <button
-              onClick={startGame}
-              className="btn-battle"
-              disabled={myTeam.length !== 3}
-            >
-              <Swords size={32} />
-              <span>BATALHAR</span>
-            </button>
-          )}
-        </div>
+            <div className="team-slots">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="slot player-slot">
+                  {myTeam[i] ? (
+                    <div
+                      className="champion-display filled"
+                      onClick={() => handleChampionSelect(myTeam[i])}
+                    >
+                      <img
+                        src={getImageUrl(myTeam[i])}
+                        alt={champions[myTeam[i]].name}
+                      />
+                      <div className="champion-info">
+                        <span className="name">
+                          {champions[myTeam[i]].name}
+                        </span>
+                      </div>
+                      <span className="remove-hint">✕</span>
+                    </div>
+                  ) : (
+                    <div className="champion-display empty">
+                      <span>Selecionar</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-        <div className="team-section enemy-team">
-          <h2>
-            Inimigos{" "}
-            {gameResult && (
-              <span className="force-badge">{gameResult.enemyForce} XP</span>
-            )}
-          </h2>
-          <div className="team-slots">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="slot">
-                {enemyTeam[i] ? (
-                  <div className="champion-slot filled enemy">
-                    <img
-                      src={getImageUrl(enemyTeam[i])}
-                      alt={champions[enemyTeam[i]].name}
-                    />
-                    <span>{champions[enemyTeam[i]].name}</span>
-                  </div>
-                ) : (
-                  <div className="champion-slot empty">?</div>
-                )}
+          {/* Battle Controls / Result */}
+          <div className="battle-zone">
+            {isBattling ? (
+              <div className="battling-status">
+                <Swords size={64} className="swords-clash" />
+                <h3>BATALHANDO...</h3>
               </div>
-            ))}
+            ) : gameResult ? (
+              <div className={`result-card ${gameResult.outcome}`}>
+                {gameResult.outcome === "win" && (
+                  <Trophy size={48} className="icon-win" />
+                )}
+                {gameResult.outcome === "loss" && (
+                  <Skull size={48} className="icon-loss" />
+                )}
+
+                <div className="result-text">
+                  <h3>
+                    {gameResult.outcome === "win"
+                      ? "VITÓRIA!"
+                      : gameResult.outcome === "loss"
+                      ? "DERROTA"
+                      : "EMPATE"}
+                  </h3>
+                  <p>
+                    {gameResult.outcome === "win"
+                      ? "Seu time dominou a arena!"
+                      : "O time inimigo foi mais forte."}
+                  </p>
+                </div>
+
+                <button onClick={resetGame} className="btn-play-again">
+                  <RefreshCw size={20} /> Jogar Novamente
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={startGame}
+                className="btn-battle-large"
+                disabled={myTeam.length !== 3}
+              >
+                <Swords size={32} />
+                <span>INICIAR BATALHA</span>
+              </button>
+            )}
+          </div>
+
+          {/* Enemy Team Section */}
+          <div className="team-section enemy-team">
+            <div className="team-header">
+              <h2>Inimigos</h2>
+              {gameResult && (
+                <span className="force-badge enemy">
+                  {gameResult.enemyForce} XP
+                </span>
+              )}
+            </div>
+            <div className="team-slots">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="slot enemy-slot">
+                  {enemyTeam[i] ? (
+                    <div className="champion-display filled enemy">
+                      <img
+                        src={getImageUrl(enemyTeam[i])}
+                        alt={champions[enemyTeam[i]].name}
+                      />
+                      <div className="champion-info">
+                        <span className="name">
+                          {champions[enemyTeam[i]].name}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="champion-display empty-enemy">
+                      <span>?</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-
-      {!gameResult && (
-        <div className="selection-area">
-          <input
-            type="text"
-            placeholder="Buscar campeão..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-          <div className="champions-grid">
-            {filteredChampions.map(([id, champ]) => {
-              const isSelected = myTeam.includes(id);
-              return (
-                <div
-                  key={id}
-                  className={`champion-card-select ${
-                    isSelected ? "selected" : ""
-                  }`}
-                  onClick={() => handleChampionSelect(id)}
-                >
-                  <img src={getImageUrl(id)} alt={champ.name} loading="lazy" />
-                  <span className="caption">{champ.name}</span>
-                  <div className="stats-tooltip">
-                    <div className="stat-row">
-                      <span>Ataque:</span>{" "}
-                      <span className="stat-val">{champ.info.attack}</span>
-                    </div>
-                    <div className="stat-row">
-                      <span>Defesa:</span>{" "}
-                      <span className="stat-val">{champ.info.defense}</span>
-                    </div>
-                    <div className="stat-row">
-                      <span>Magia:</span>{" "}
-                      <span className="stat-val">{champ.info.magic}</span>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

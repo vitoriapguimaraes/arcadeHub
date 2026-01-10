@@ -110,7 +110,7 @@ const Guessing = () => {
 
   return (
     <div className="guessing-container game-screen">
-      <header className="game-header-simple">
+      <header className="game-header">
         <button onClick={resetSelection} className="btn-back">
           ← Voltar
         </button>

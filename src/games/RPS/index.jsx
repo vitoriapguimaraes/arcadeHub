@@ -42,7 +42,10 @@ const RPS = () => {
 
   return (
     <div className="rps-container">
-      <h1 className="game-title">Jokenpô</h1>
+      <header className="game-header">
+        <h1 className="game-title">Jokenpô</h1>
+        <p className="game-subtitle">Pedra, Papel e Tesoura</p>
+      </header>
 
       <div className="battle-area">
         {!result ? (

@@ -2,12 +2,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
   max-width: 100%;
   margin: 0;
   width: 100%;
+  height: 100%; /* Ensure full height */
   flex: 1;
+  justify-content: flex-start; /* Align top */
+}
+
+.game-header {
+  display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  flex-shrink: 0;
 }
 
 .bridge-visual {
