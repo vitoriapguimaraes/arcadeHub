@@ -1,13 +1,12 @@
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import "./Layout.css";
 
 const Layout = () => {
   return (
-    <div className="app-layout">
+    <div className="flex flex-row min-h-screen bg-background">
       <Sidebar />
-      <main className="app-main">
-        <div className="content-container">
+      <main className="flex-1 flex flex-col overflow-x-hidden relative h-screen overflow-y-auto scrollbar-thin">
+        <div className="w-full h-full m-0 p-8 flex flex-col max-w-full md:p-4">
           <Outlet />
         </div>
       </main>

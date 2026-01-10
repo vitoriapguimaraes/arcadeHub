@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, Play, Trophy, XCircle, ArrowLeft } from "lucide-react";
-import "./Hangman.css";
 
 // Simple accent removal for comparison
 const normalize = (str) =>
@@ -135,8 +134,10 @@ const Hangman = () => {
   // Loading Screen
   if (gameState.status === "loading") {
     return (
-      <div className="hangman-container">
-        <div className="loader">Carregando banco de palavras...</div>
+      <div className="flex flex-col h-full w-full gap-4 items-center justify-center">
+        <div className="font-bold text-lg text-primary animate-pulse">
+          Carregando banco de palavras...
+        </div>
       </div>
     );
   }
@@ -145,26 +146,28 @@ const Hangman = () => {
   const displayWord = getDisplayWord();
 
   return (
-    <div className="hangman-container">
+    <div className="flex flex-col h-full w-full gap-4">
       {/* Persistent Header */}
-      <div className="start-header-row">
-        <h1 className="game-title">Jogo da Forca</h1>
-        <p className="start-instruction">
+      <div className="flex flex-col md:flex-row justify-between items-center w-full mb-8 p-4 bg-black/20 rounded-xl gap-4">
+        <h1 className="text-primary font-bold text-2xl drop-shadow-[0_0_10px_rgba(255,137,6,0.3)]">
+          Jogo da Forca
+        </h1>
+        <p className="text-text-secondary text-lg font-medium m-0 text-center">
           {gameState.status === "select_category"
             ? "Escolha uma categoria para começar:"
             : "Boa sorte!"}
         </p>
-        <div className="session-score-header">
+        <div className="flex gap-4 text-base text-text-secondary items-center bg-black/30 px-4 py-2 rounded-full whitespace-nowrap">
           <span>Sessão: </span>
-          <span className="win-count">
+          <span className="flex items-center gap-2 text-[#2cb67d]">
             <Trophy size={16} /> {score.wins}
           </span>
-          <span className="loss-count">
+          <span className="flex items-center gap-2 text-tertiary">
             <XCircle size={16} /> {score.losses}
           </span>
           <button
             onClick={resetSession}
-            className="btn-reset-session"
+            className="btn-reset-session flex items-center p-1 rounded-full text-text-secondary transition-all hover:bg-white/10 hover:text-primary hover:rotate-180 ml-2 bg-transparent border-none cursor-pointer"
             title="Resetar Sessão"
           >
             <RefreshCw size={16} />
@@ -173,18 +176,26 @@ const Hangman = () => {
       </div>
 
       {/* Persistent Category Selection & Game Status */}
-      <div className="category-status-row">
+      <div className="flex items-center gap-4 mb-8 min-h-[64px] relative">
         <div
-          className={`category-grid ${
-            gameState.status !== "select_category" ? "compact" : ""
+          className={`grid gap-3 w-full transition-all duration-300 ${
+            gameState.status !== "select_category"
+              ? "flex flex-nowrap overflow-x-auto py-[10px] px-[5px] mb-0 scrollbar-thin w-full pr-[240px]"
+              : "grid-cols-[repeat(auto-fit,minmax(120px,1fr))]"
           }`}
         >
           {categoriesData &&
             Object.keys(categoriesData).map((cat) => (
               <button
                 key={cat}
-                className={`btn-category ${
-                  gameState.category === cat.toUpperCase() ? "active" : ""
+                className={`p-4 text-text-main rounded-xl text-lg cursor-pointer transition-all border border-text-secondary bg-card hover:bg-primary hover:text-white hover:-translate-y-1 hover:shadow-md ${
+                  gameState.status !== "select_category"
+                    ? "py-2 px-4 text-sm min-w-auto whitespace-nowrap rounded-full bg-transparent"
+                    : ""
+                } ${
+                  gameState.category === cat.toUpperCase()
+                    ? "bg-primary text-white border-primary"
+                    : ""
                 }`}
                 onClick={() => selectCategory(cat)}
               >
@@ -195,12 +206,18 @@ const Hangman = () => {
 
         {/* Game Status Notification (Right Side) */}
         {(gameState.status === "won" || gameState.status === "lost") && (
-          <div className={`game-result-badge ${gameState.status}`}>
-            <div className="result-info">
-              <strong>
+          <div
+            className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-4 py-2 px-4 rounded-xl bg-card border animate-slide-in-right whitespace-nowrap z-10 shadow-lg text-white ${
+              gameState.status === "won"
+                ? "border-[#2cb67d] bg-[#2cb67d]/95"
+                : "border-tertiary bg-[#ef4565]/95"
+            }`}
+          >
+            <div className="flex flex-col text-sm">
+              <strong className="text-base mb-[2px]">
                 {gameState.status === "won" ? "Vitória!" : "Derrota!"}
               </strong>
-              <span className="result-text">
+              <span>
                 {gameState.status === "won"
                   ? "Muito bem!"
                   : `Era: ${gameState.word.toUpperCase()}`}
@@ -208,7 +225,7 @@ const Hangman = () => {
             </div>
             <button
               onClick={() => selectCategory(gameState.category.toLowerCase())}
-              className="btn-play-again-mini"
+              className="bg-primary text-white border-none p-2 rounded-lg cursor-pointer flex items-center justify-center transition-all hover:scale-110 hover:shadow-glow-primary"
               title="Jogar Novamente nesta Categoria"
             >
               <RefreshCw size={18} />
@@ -219,16 +236,45 @@ const Hangman = () => {
 
       {/* Game Content - Visible when playing or finished */}
       {gameState.status !== "select_category" && (
-        <div className="game-content animate-fade-in">
-          <div className="hangman-visual">
-            <svg viewBox="0 0 200 250" className="hangman-svg">
-              <line x1="20" y1="230" x2="100" y2="230" className="gallows" />
-              <line x1="60" y1="230" x2="60" y2="20" className="gallows" />
-              <line x1="60" y1="20" x2="140" y2="20" className="gallows" />
-              <line x1="140" y1="20" x2="140" y2="50" className="gallows" />
+        <div className="flex flex-1 gap-8 items-start justify-center p-4 animate-fade-in flex-col md:flex-row md:items-start md:justify-center">
+          <div className="bg-card p-8 rounded-2xl flex flex-col items-center shadow-md w-full md:w-auto">
+            <svg viewBox="0 0 200 250" className="h-[250px] md:h-auto">
+              <line
+                x1="20"
+                y1="230"
+                x2="100"
+                y2="230"
+                className="stroke-text-main stroke-[4px] stroke-round"
+              />
+              <line
+                x1="60"
+                y1="230"
+                x2="60"
+                y2="20"
+                className="stroke-text-main stroke-[4px] stroke-round"
+              />
+              <line
+                x1="60"
+                y1="20"
+                x2="140"
+                y2="20"
+                className="stroke-text-main stroke-[4px] stroke-round"
+              />
+              <line
+                x1="140"
+                y1="20"
+                x2="140"
+                y2="50"
+                className="stroke-text-main stroke-[4px] stroke-round"
+              />
 
               {gameState.mistakes >= 1 && (
-                <circle cx="140" cy="70" r="20" className="body-part" />
+                <circle
+                  cx="140"
+                  cy="70"
+                  r="20"
+                  className="stroke-secondary stroke-[4px] fill-none stroke-round"
+                />
               )}
               {gameState.mistakes >= 2 && (
                 <line
@@ -236,7 +282,7 @@ const Hangman = () => {
                   y1="90"
                   x2="140"
                   y2="150"
-                  className="body-part"
+                  className="stroke-secondary stroke-[4px] fill-none stroke-round"
                 />
               )}
               {gameState.mistakes >= 3 && (
@@ -245,7 +291,7 @@ const Hangman = () => {
                   y1="100"
                   x2="110"
                   y2="130"
-                  className="body-part"
+                  className="stroke-secondary stroke-[4px] fill-none stroke-round"
                 />
               )}
               {gameState.mistakes >= 4 && (
@@ -254,7 +300,7 @@ const Hangman = () => {
                   y1="100"
                   x2="170"
                   y2="130"
-                  className="body-part"
+                  className="stroke-secondary stroke-[4px] fill-none stroke-round"
                 />
               )}
               {gameState.mistakes >= 5 && (
@@ -263,7 +309,7 @@ const Hangman = () => {
                   y1="150"
                   x2="120"
                   y2="190"
-                  className="body-part"
+                  className="stroke-secondary stroke-[4px] fill-none stroke-round"
                 />
               )}
               {gameState.mistakes >= 6 && (
@@ -272,38 +318,49 @@ const Hangman = () => {
                   y1="150"
                   x2="160"
                   y2="190"
-                  className="body-part"
+                  className="stroke-secondary stroke-[4px] fill-none stroke-round"
                 />
               )}
             </svg>
+            <span className="mt-4 font-mono text-tertiary">
+              Erros: {gameState.mistakes} / {gameState.maxMistakes}
+            </span>
 
             <button
               onClick={restartCurrentCategory}
-              className="btn-restart-round"
+              className="mt-6 bg-transparent border-2 border-text-secondary text-text-secondary px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 text-sm transition-all hover:border-tertiary hover:text-tertiary hover:-translate-y-[2px]"
             >
               <RefreshCw size={16} /> Reiniciar
             </button>
           </div>
 
-          <div className="play-area">
-            <div className="word-display">
+          <div className="flex flex-col items-center flex-1 max-w-[800px] gap-8 w-full">
+            <div className="flex flex-wrap justify-center gap-4 mb-4">
               {displayWord.map((char, i) => (
                 <span
                   key={i}
-                  className={`char ${char === "_" ? "hidden" : "visible"}`}
+                  className={`text-5xl font-bold border-b-4 border-text-secondary min-w-[50px] text-center uppercase md:text-3xl md:min-w-[30px] ${
+                    char === "_" ? "text-transparent" : "text-text-main"
+                  }`}
                 >
                   {char}
                 </span>
               ))}
             </div>
 
-            <div className="keyboard">
+            <div className="flex flex-wrap justify-center gap-3 w-full">
               {alphabet.map((letter) => {
                 const isChosen = gameState.lettersChosen.includes(letter);
                 const isWrong = gameState.lettersWrong.includes(letter);
-                let statusClass = "";
-                if (isChosen) statusClass = "correct";
-                if (isWrong) statusClass = "wrong";
+                let statusClass =
+                  "bg-card border-white/10 text-text-main hover:bg-primary hover:text-white hover:-translate-y-1 hover:shadow-glow-primary";
+
+                if (isChosen)
+                  statusClass =
+                    "bg-secondary text-background border-secondary opacity-40 hover:none hover:translate-y-0 hover:shadow-none";
+                if (isWrong)
+                  statusClass =
+                    "bg-tertiary border-tertiary opacity-20 hover:none hover:translate-y-0 hover:shadow-none";
 
                 return (
                   <button
@@ -312,7 +369,7 @@ const Hangman = () => {
                     disabled={
                       gameState.status !== "playing" || isChosen || isWrong
                     }
-                    className={`key-btn ${statusClass}`}
+                    className={`w-[60px] h-[60px] text-2xl rounded-xl border border-solid cursor-pointer transition-all uppercase md:w-[45px] md:h-[45px] md:text-lg ${statusClass}`}
                   >
                     {letter}
                   </button>
