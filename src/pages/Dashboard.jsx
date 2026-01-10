@@ -54,7 +54,6 @@ const games = [
 const Dashboard = () => {
   return (
     <div className="dashboard">
-      <h1 className="dashboard-title">Bem-vindo ao ArcadeHub</h1>
       <p
         style={{
           color: "var(--text-secondary)",
