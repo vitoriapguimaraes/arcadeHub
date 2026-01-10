@@ -1,10 +1,10 @@
-import { useState, useRef } from "react";
-import { HelpCircle, RefreshCw, Trophy, Zap } from "lucide-react";
-import "./Guessing.css";
+import { useState, useRef, useEffect } from "react";
+import { HelpCircle, RefreshCw, Trophy, Zap, ArrowLeft } from "lucide-react";
+import GameHeader from "../../components/GameHeader";
 
 const MODES = {
-  easy: { max: 10, name: "Mentalista (0-10)" },
-  hard: { max: 100, name: "Número Secreto (1-100)" },
+  easy: { max: 10, name: "Mentalista", range: "0 a 10" },
+  hard: { max: 100, name: "Número Secreto", range: "1 a 100" },
 };
 
 const Guessing = () => {
@@ -14,14 +14,18 @@ const Guessing = () => {
   const [message, setMessage] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [score, setScore] = useState({ wins: 0, losses: 0 }); // Session Score (Losses don't really apply here unless we add a max attempts limit later, so maybe just wins?)
+  // For now let's count a "win" when they find the number.
+
   const inputRef = useRef(null);
 
-  const startGame = (mode) => {
-    const max = MODES[mode].max;
-    const secret = Math.floor(Math.random() * max) + 1; // 1 to max (adjust logic if 0 needed for mentalista, script said 0-10 but random*11 is 0-10.99 so floor is 0-10)
-    // Mentalista script was parseInt(Math.random()*11) -> 0 to 10.
-    // SecretNumber script was parseInt(Math.random() * 100) + 1 -> 1 to 100.
+  useEffect(() => {
+    if (gameMode && !gameOver && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [gameMode, gameOver]);
 
+  const startGame = (mode) => {
     let generatedSecret;
     if (mode === "easy") {
       generatedSecret = Math.floor(Math.random() * 11); // 0-10
@@ -32,10 +36,16 @@ const Guessing = () => {
     setGameMode(mode);
     setSecretNumber(generatedSecret);
     setGuess("");
-    setMessage("Faça seu chute!");
+    setMessage("Tente adivinhar o número!");
     setAttempts(0);
     setGameOver(false);
-    // Focus input usually fails here because render hasn't happened, handle in useEffect or autoFocus
+  };
+
+  const resetSession = () => {
+    setScore({ wins: 0, losses: 0 });
+    setGameMode(null);
+    setSecretNumber(null);
+    setMessage("");
   };
 
   const handleGuess = (e) => {
@@ -52,25 +62,33 @@ const Guessing = () => {
     setAttempts(newAttempts);
 
     if (val === secretNumber) {
-      setMessage(
-        `Parabéns! Você acertou em ${newAttempts} ${
-          newAttempts === 1 ? "tentativa" : "tentativas"
-        }!`
-      );
+      setMessage(`Acertou! O número era ${secretNumber}.`);
       setGameOver(true);
+      setScore((prev) => ({ ...prev, wins: prev.wins + 1 }));
     } else if (val > secretNumber) {
-      setMessage("O número secreto é MENOR que " + val);
+      const isClose = val - secretNumber <= (gameMode === "easy" ? 2 : 5);
+      setMessage(
+        <span>
+          O número secreto é <strong>MENOR</strong>.{" "}
+          {isClose && (
+            <span className="text-secondary ml-1 animate-pulse">
+              (Tá quente!)
+            </span>
+          )}
+        </span>
+      );
     } else {
-      setMessage("O número secreto é MAIOR que " + val);
-    }
-
-    // Custom feedback for 'easy' mode as per original script
-    if (gameMode === "easy" && val !== secretNumber) {
-      if (val === secretNumber + 1 || val === secretNumber - 1) {
-        setMessage(
-          "Eita, tá quente! " + (val > secretNumber ? "É menor." : "É maior.")
-        );
-      }
+      const isClose = secretNumber - val <= (gameMode === "easy" ? 2 : 5);
+      setMessage(
+        <span>
+          O número secreto é <strong>MAIOR</strong>.{" "}
+          {isClose && (
+            <span className="text-secondary ml-1 animate-pulse">
+              (Tá quente!)
+            </span>
+          )}
+        </span>
+      );
     }
 
     setGuess("");
@@ -82,76 +100,129 @@ const Guessing = () => {
     setMessage("");
   };
 
-  if (!gameMode) {
-    return (
-      <div className="guessing-container start-screen">
-        <HelpCircle size={64} className="icon-main" />
-        <h1 className="game-title">Adivinhação</h1>
-        <p>Teste sua intuição e sorte.</p>
-        <div className="mode-selection">
-          <button onClick={() => startGame("easy")} className="btn-mode easy">
-            <Zap size={20} />
-            <div>
-              <strong>Mentalista</strong>
-              <span>0 a 10</span>
-            </div>
-          </button>
-          <button onClick={() => startGame("hard")} className="btn-mode hard">
-            <Trophy size={20} />
-            <div>
-              <strong>Master</strong>
-              <span>1 a 100</span>
-            </div>
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const getSubtitle = () => {
+    if (!gameMode) return "Escolha um modo de jogo para testar sua intuição.";
+    if (gameOver)
+      return `Parabéns! Você encontrou o número em ${attempts} tentativas.`;
+    return `Modo: ${MODES[gameMode].name} (${MODES[gameMode].range})`;
+  };
 
   return (
-    <div className="guessing-container game-screen">
-      <header className="game-header-simple">
-        <button onClick={resetSelection} className="btn-back">
-          ← Voltar
-        </button>
-        <h2>{MODES[gameMode].name}</h2>
-      </header>
+    <div className="flex flex-col h-full w-full gap-4 overflow-hidden relative">
+      <GameHeader
+        title="Adivinhação"
+        subtitle={getSubtitle()}
+        score={score}
+        onResetSession={resetSession}
+      />
 
-      <div className="guessing-card">
-        <div className="circle-display">
-          {gameOver ? (
-            <div className="secret-reveal animate-reveal">{secretNumber}</div>
-          ) : (
-            <div className="secret-hidden">?</div>
-          )}
+      {!gameMode ? (
+        <div className="flex-1 flex flex-col items-center justify-center gap-8 relative z-10">
+          <div className="bg-card p-8 rounded-2xl flex flex-col items-center shadow-xl border border-white/5 max-w-lg w-full text-center">
+            <HelpCircle size={64} className="text-primary mb-4" />
+            <h3 className="text-2xl font-bold text-white mb-6">
+              Escolha o Desafio
+            </h3>
+
+            <div className="flex flex-col sm:flex-row gap-4 w-full">
+              <button
+                onClick={() => startGame("easy")}
+                className="flex-1 bg-black/30 border border-white/10 p-6 rounded-xl hover:bg-primary/20 hover:border-primary hover:-translate-y-1 transition-all group flex flex-col items-center gap-2 cursor-pointer"
+              >
+                <Zap
+                  size={32}
+                  className="text-highlight group-hover:text-primary transition-colors"
+                />
+                <div>
+                  <strong className="block text-lg text-white">
+                    Mentalista
+                  </strong>
+                  <span className="text-sm text-text-secondary">0 a 10</span>
+                </div>
+              </button>
+
+              <button
+                onClick={() => startGame("hard")}
+                className="flex-1 bg-black/30 border border-white/10 p-6 rounded-xl hover:bg-secondary/20 hover:border-secondary hover:-translate-y-1 transition-all group flex flex-col items-center gap-2 cursor-pointer"
+              >
+                <Trophy
+                  size={32}
+                  className="text-secondary transition-colors"
+                />
+                <div>
+                  <strong className="block text-lg text-white">Master</strong>
+                  <span className="text-sm text-text-secondary">1 a 100</span>
+                </div>
+              </button>
+            </div>
+          </div>
         </div>
-
-        <p className={`status-text ${gameOver ? "won" : ""}`}>{message}</p>
-
-        {!gameOver ? (
-          <form onSubmit={handleGuess} className="guess-form">
-            <input
-              ref={inputRef}
-              type="number"
-              value={guess}
-              onChange={(e) => setGuess(e.target.value)}
-              placeholder="Digite..."
-              autoFocus
-              max={gameMode === "easy" ? 10 : 100}
-              min={0}
-            />
-            <button type="submit" className="btn-guess">
-              Chutar
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center gap-4">
+          <div className="bg-card w-full max-w-md p-8 rounded-3xl shadow-2xl border border-white/5 flex flex-col items-center relative">
+            <button
+              onClick={resetSelection}
+              className="absolute top-4 left-4 p-2 rounded-full hover:bg-white/10 text-text-secondary hover:text-white transition-colors"
+              title="Voltar"
+            >
+              <ArrowLeft size={20} />
             </button>
-          </form>
-        ) : (
-          <button onClick={() => startGame(gameMode)} className="btn-primary">
-            <RefreshCw size={20} /> Jogar Novamente
-          </button>
-        )}
 
-        <div className="stats">Tetativas: {attempts}</div>
-      </div>
+            <div className="mb-6 relative">
+              <div
+                className={`w-32 h-32 rounded-full flex items-center justify-center text-5xl font-bold shadow-inner ${
+                  gameOver
+                    ? "bg-black/20 text-secondary border-4 border-secondary animate-zoom-in"
+                    : "bg-black/40 text-text-secondary border-4 border-dashed border-white/20"
+                }`}
+              >
+                {gameOver ? secretNumber : "?"}
+              </div>
+            </div>
+
+            <div
+              className={`min-h-[3rem] flex items-center justify-center text-center text-lg mb-6 px-4 py-2 rounded-lg bg-black/20 w-full ${
+                gameOver ? "text-secondary font-bold" : "text-text-main"
+              }`}
+            >
+              {message}
+            </div>
+
+            {!gameOver ? (
+              <form onSubmit={handleGuess} className="w-full flex gap-3">
+                <input
+                  ref={inputRef}
+                  type="number"
+                  value={guess}
+                  onChange={(e) => setGuess(e.target.value)}
+                  placeholder="Digite..."
+                  className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-xl text-center text-white focus:outline-none focus:border-highlight focus:shadow-[0_0_0_2px_rgba(61,169,252,0.3)] transition-all"
+                  max={gameMode === "easy" ? 10 : 100}
+                  min={0}
+                />
+                <button
+                  type="submit"
+                  className="bg-highlight hover:bg-[#3da9fc]/80 text-white font-bold px-6 py-3 rounded-xl transition-all hover:scale-105 active:scale-95 shadow-lg"
+                >
+                  Chutar
+                </button>
+              </form>
+            ) : (
+              <button
+                onClick={() => startGame(gameMode)}
+                className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-xl text-lg flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,137,6,0.3)] transition-all animate-bounce-in"
+              >
+                <RefreshCw size={24} /> Jogar Novamente
+              </button>
+            )}
+
+            <div className="mt-6 text-sm text-text-secondary font-mono">
+              Tentativas:{" "}
+              <span className="text-white font-bold">{attempts}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
