@@ -59,7 +59,7 @@ const Dashboard = () => {
         moderna. Selecione um jogo na barra lateral ou nos cards abaixo para
         começar.
       </p>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-8 p-4">
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,2fr))] gap-8 p-4">
         {games.map((game) => (
           <Link
             to={game.path}

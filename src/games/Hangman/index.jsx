@@ -94,6 +94,7 @@ const Hangman = () => {
 
     // Check Win/Loss
     const isWon = gameState.word.split("").every((char) => {
+      if (!/[a-zA-Z]/.test(normalize(char))) return true; // Ignore spaces/symbols
       const normChar = normalize(char);
       return newLettersChosen.some((l) => normalize(l) === normChar);
     });
@@ -123,6 +124,7 @@ const Hangman = () => {
   const getDisplayWord = () => {
     if (!gameState.word) return [];
     return gameState.word.split("").map((char) => {
+      if (!/[a-zA-Z]/.test(normalize(char))) return char; // Reveal spaces/symbols
       const normChar = normalize(char);
       const isRevealed = gameState.lettersChosen.some(
         (l) => normalize(l) === normChar
@@ -178,60 +180,40 @@ const Hangman = () => {
       {/* Persistent Category Selection & Game Status */}
       <div className="flex items-center gap-4 mb-8 min-h-[64px] relative">
         <div
-          className={`grid gap-3 w-full transition-all duration-300 ${
+          className={`w-full transition-all duration-300 ${
             gameState.status !== "select_category"
-              ? "flex flex-nowrap overflow-x-auto py-[10px] px-[5px] mb-0 scrollbar-thin w-full pr-[240px]"
-              : "grid-cols-[repeat(auto-fit,minmax(120px,1fr))]"
+              ? "flex flex-nowrap gap-3 overflow-x-auto py-[10px] px-[5px] mb-0 scrollbar-thin w-full pr-[240px]"
+              : "grid grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3"
           }`}
         >
           {categoriesData &&
-            Object.keys(categoriesData).map((cat) => (
-              <button
-                key={cat}
-                className={`p-4 text-text-main rounded-xl text-lg cursor-pointer transition-all border border-text-secondary bg-card hover:bg-primary hover:text-white hover:-translate-y-1 hover:shadow-md ${
-                  gameState.status !== "select_category"
-                    ? "py-2 px-4 text-sm min-w-auto whitespace-nowrap rounded-full bg-transparent"
-                    : ""
-                } ${
-                  gameState.category === cat.toUpperCase()
-                    ? "bg-primary text-white border-primary"
-                    : ""
-                }`}
-                onClick={() => selectCategory(cat)}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
-        </div>
+            Object.keys(categoriesData).map((cat) => {
+              const isSelected = gameState.category === cat.toUpperCase();
+              const isCompact = gameState.status !== "select_category";
 
-        {/* Game Status Notification (Right Side) */}
-        {(gameState.status === "won" || gameState.status === "lost") && (
-          <div
-            className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-4 py-2 px-4 rounded-xl bg-card border animate-slide-in-right whitespace-nowrap z-10 shadow-lg text-white ${
-              gameState.status === "won"
-                ? "border-[#2cb67d] bg-[#2cb67d]/95"
-                : "border-tertiary bg-[#ef4565]/95"
-            }`}
-          >
-            <div className="flex flex-col text-sm">
-              <strong className="text-base mb-[2px]">
-                {gameState.status === "won" ? "Vitória!" : "Derrota!"}
-              </strong>
-              <span>
-                {gameState.status === "won"
-                  ? "Muito bem!"
-                  : `Era: ${gameState.word.toUpperCase()}`}
-              </span>
-            </div>
-            <button
-              onClick={() => selectCategory(gameState.category.toLowerCase())}
-              className="bg-primary text-white border-none p-2 rounded-lg cursor-pointer flex items-center justify-center transition-all hover:scale-110 hover:shadow-glow-primary"
-              title="Jogar Novamente nesta Categoria"
-            >
-              <RefreshCw size={18} />
-            </button>
-          </div>
-        )}
+              return (
+                <button
+                  key={cat}
+                  className={`cursor-pointer transition-all border ${
+                    isCompact
+                      ? "py-2 px-4 text-sm min-w-auto whitespace-nowrap rounded-full"
+                      : "p-4 text-lg rounded-xl hover:-translate-y-1 hover:shadow-md"
+                  } ${
+                    isSelected
+                      ? "bg-primary text-white border-primary font-bold shadow-glow-primary scale-105"
+                      : `border-text-secondary hover:bg-primary hover:text-white hover:border-primary ${
+                          isCompact
+                            ? "bg-transparent text-text-secondary opacity-60 hover:opacity-100"
+                            : "bg-card text-text-main"
+                        }`
+                  }`}
+                  onClick={() => selectCategory(cat)}
+                >
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </button>
+              );
+            })}
+        </div>
       </div>
 
       {/* Game Content - Visible when playing or finished */}
@@ -322,9 +304,6 @@ const Hangman = () => {
                 />
               )}
             </svg>
-            <span className="mt-4 font-mono text-tertiary">
-              Erros: {gameState.mistakes} / {gameState.maxMistakes}
-            </span>
 
             <button
               onClick={restartCurrentCategory}
@@ -339,9 +318,11 @@ const Hangman = () => {
               {displayWord.map((char, i) => (
                 <span
                   key={i}
-                  className={`text-5xl font-bold border-b-4 border-text-secondary min-w-[50px] text-center uppercase md:text-3xl md:min-w-[30px] ${
-                    char === "_" ? "text-transparent" : "text-text-main"
-                  }`}
+                  className={`text-5xl font-bold min-w-[50px] text-center uppercase md:text-3xl md:min-w-[30px] ${
+                    char === " "
+                      ? "border-none w-8"
+                      : "border-b-4 border-text-secondary"
+                  } ${char === "_" ? "text-transparent" : "text-text-main"}`}
                 >
                   {char}
                 </span>
@@ -376,6 +357,50 @@ const Hangman = () => {
                 );
               })}
             </div>
+
+            {/* Game Status Notification (Below Keyboard) */}
+            {(gameState.status === "won" || gameState.status === "lost") && (
+              <div
+                className={`flex items-center gap-6 py-4 px-8 rounded-2xl bg-card border animate-bounce-in shadow-xl text-white mt-8 mb-4 w-full justify-center ${
+                  gameState.status === "won"
+                    ? "border-[#2cb67d] bg-[#2cb67d]/20 shadow-[0_0_20px_rgba(44,182,125,0.3)]"
+                    : "border-tertiary bg-[#ef4565]/20 shadow-[0_0_20px_rgba(239,69,101,0.3)]"
+                }`}
+              >
+                <div className="flex flex-col items-center text-center">
+                  <strong
+                    className={`text-2xl mb-1 ${
+                      gameState.status === "won"
+                        ? "text-[#2cb67d]"
+                        : "text-tertiary"
+                    }`}
+                  >
+                    {gameState.status === "won" ? "Vitória!" : "Derrota!"}
+                  </strong>
+                  <span className="text-text-main text-lg">
+                    {gameState.status === "won" ? (
+                      "Você acertou a palavra!"
+                    ) : (
+                      <>
+                        A palavra era:{" "}
+                        <strong className="text-white">
+                          {gameState.word.toUpperCase()}
+                        </strong>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <button
+                  onClick={() =>
+                    selectCategory(gameState.category.toLowerCase())
+                  }
+                  className="bg-primary text-white border-none px-6 py-3 rounded-xl cursor-pointer flex items-center gap-2 font-bold text-lg transition-all hover:scale-105 hover:shadow-glow-primary ml-4"
+                  title="Jogar Novamente"
+                >
+                  <RefreshCw size={24} /> Jogar Novamente
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
