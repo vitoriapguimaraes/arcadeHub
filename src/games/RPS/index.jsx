@@ -66,7 +66,7 @@ const RPS = () => {
 
       <div className="flex-1 flex flex-col items-center justify-center p-4">
         {!result ? (
-          <div className="bg-card w-full max-w-4xl p-8 rounded-3xl shadow-xl border border-white/5 flex flex-col items-center animate-fade-in relative z-10">
+          <div className="bg-card w-full max-w-4xl p-8 rounded-3xl shadow-xl border border-white/5 flex flex-col items-center relative z-10">
             <p className="text-xl text-text-secondary mb-8 font-medium">
               Escolha sua arma:
             </p>

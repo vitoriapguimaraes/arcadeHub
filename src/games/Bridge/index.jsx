@@ -60,7 +60,7 @@ const Bridge = () => {
       />
 
       {gameState === "start" ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-8 animate-fade-in relative z-10">
+        <div className="flex-1 flex flex-col items-center justify-center gap-8 relative z-10">
           <div className="bg-card p-8 rounded-2xl flex flex-col items-center shadow-xl border border-white/5 max-w-md w-full text-center">
             <Footprints size={64} className="text-primary mb-4" />
             <div className="space-y-2 mb-8">

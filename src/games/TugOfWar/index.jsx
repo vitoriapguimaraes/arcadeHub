@@ -117,12 +117,7 @@ const TugOfWar = () => {
 
   const isGameActive = isBattling || gameResult;
 
-  if (loading)
-    return (
-      <div className="flex h-full items-center justify-center text-primary font-bold animate-pulse">
-        Carregando Campeões...
-      </div>
-    );
+  // Removed early return for loading
 
   return (
     <div className="flex flex-col h-full w-full gap-2 overflow-hidden">
@@ -135,16 +130,7 @@ const TugOfWar = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-4 flex-1 min-h-0 pb-2 overflow-hidden">
         {/* LEFT COLUMN: Champion Draft */}
-        <motion.div
-          layout
-          className="flex flex-col bg-card rounded-2xl overflow-hidden border border-white/5 shadow-md h-full relative z-10"
-          transition={{
-            duration: 0.5,
-            type: "spring",
-            bounce: 0,
-            stiffness: 100,
-          }}
-        >
+        <div className="flex flex-col bg-card rounded-2xl overflow-hidden border border-white/5 shadow-md h-full relative z-10">
           <div className="p-3 bg-black/20 border-b border-white/5 shrink-0">
             <input
               type="text"
@@ -155,61 +141,61 @@ const TugOfWar = () => {
             />
           </div>
 
-          <div className="flex-1 overflow-y-auto p-3 grid grid-cols-[repeat(auto-fill,minmax(70px,1fr))] auto-rows-[90px] gap-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent content-start">
-            <AnimatePresence>
-              {filteredChampions.map(([id, champ]) => {
-                const isSelected = myTeam.includes(id);
-                return (
-                  <motion.div
-                    layout
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.2 }}
-                    key={id}
-                    className={`relative rounded-lg overflow-hidden cursor-pointer border-2 transition-colors bg-black group hover:-translate-y-1 hover:border-text-secondary ${
-                      isSelected
-                        ? "border-primary opacity-50 grayscale"
-                        : "border-transparent"
-                    }`}
-                    onClick={() => handleChampionSelect(id)}
-                  >
-                    <img
-                      src={getImageUrl(id)}
-                      alt={champ.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                    />
-                    <span className="absolute bottom-0 w-full bg-black/80 text-[9px] text-center py-[2px] truncate px-1 text-white">
-                      {champ.name}
-                    </span>
-                    {/* Hover Stats */}
-                    <div className="absolute top-0 left-0 w-full p-[2px] flex justify-between opacity-0 transition-opacity group-hover:opacity-100 bg-gradient-to-b from-black/90 to-transparent text-[8px] text-white font-mono">
-                      <span className="text-primary flex items-center">
-                        ⚔️{champ.info.attack}
-                      </span>
-                      <span className="text-[#3da9fc] flex items-center">
-                        🛡️{champ.info.defense}
-                      </span>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
+          <div className="flex-1 overflow-y-auto p-3 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+            {loading ? (
+              <div className="flex h-full items-center justify-center text-primary font-bold animate-pulse gap-2 flex-col">
+                <RefreshCw className="animate-spin" size={24} />
+                <span>Invocando Campeões...</span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(70px,1fr))] auto-rows-[90px] gap-2 content-start">
+                <AnimatePresence>
+                  {filteredChampions.map(([id, champ]) => {
+                    const isSelected = myTeam.includes(id);
+                    return (
+                      <motion.div
+                        layout
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.2 }}
+                        key={id}
+                        className={`relative rounded-lg overflow-hidden cursor-pointer border-2 transition-colors bg-black group hover:-translate-y-1 hover:border-text-secondary ${
+                          isSelected
+                            ? "border-primary opacity-50 grayscale"
+                            : "border-transparent"
+                        }`}
+                        onClick={() => handleChampionSelect(id)}
+                      >
+                        <img
+                          src={getImageUrl(id)}
+                          alt={champ.name}
+                          loading="lazy"
+                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                        />
+                        <span className="absolute bottom-0 w-full bg-black/80 text-[9px] text-center py-[2px] truncate px-1 text-white">
+                          {champ.name}
+                        </span>
+                        {/* Hover Stats */}
+                        <div className="absolute top-0 left-0 w-full p-[2px] flex justify-between opacity-0 transition-opacity group-hover:opacity-100 bg-gradient-to-b from-black/90 to-transparent text-[8px] text-white font-mono">
+                          <span className="text-primary flex items-center">
+                            ⚔️{champ.info.attack}
+                          </span>
+                          <span className="text-[#3da9fc] flex items-center">
+                            🛡️{champ.info.defense}
+                          </span>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+            )}
           </div>
-        </motion.div>
+        </div>
 
         {/* RIGHT COLUMN: Battle Arena */}
-        <motion.div
-          layout
-          className="flex flex-col justify-between h-full gap-2 overflow-hidden"
-          transition={{
-            duration: 0.5,
-            type: "spring",
-            bounce: 0,
-            stiffness: 100,
-          }}
-        >
+        <div className="flex flex-col justify-between h-full gap-2 overflow-hidden">
           {/* My Team Section */}
           <div
             className={`p-4 rounded-xl border border-white/5 bg-gradient-to-r from-[#3da9fc]/10 to-transparent border-l-4 border-l-highlight transition-all shrink-0`}
@@ -261,40 +247,93 @@ const TugOfWar = () => {
           </div>
 
           {/* Battle Controls / Result */}
-          <div className="flex-1 flex items-center justify-center min-h-[100px] max-h-[300px]">
+          <div className="flex-1 flex items-center justify-center min-h-[120px] max-h-[300px] w-full px-4">
             {isBattling ? (
-              <div className="text-center animate-pulse">
-                <Swords
-                  size={48}
-                  className="text-primary mb-2 animate-[spin_1s_infinite_ease-in-out] mx-auto"
-                />
-                <h3 className="text-xl font-bold text-white tracking-widest">
-                  BATALHANDO...
-                </h3>
+              <div className="w-full max-w-md flex flex-col items-center gap-4">
+                <div className="flex justify-between w-full text-xs font-bold uppercase tracking-widest text-text-secondary mb-1">
+                  <span className="text-[#3da9fc]">Seu Time</span>
+                  <span className="text-tertiary">Inimigos</span>
+                </div>
+
+                {/* Battle Animation: Oscillating Bar */}
+                <div className="relative w-full h-4 bg-black/50 rounded-full overflow-hidden border border-white/10 shadow-inner">
+                  {/* Center Indicator */}
+                  <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-white/20 z-10" />
+
+                  <motion.div
+                    className="absolute top-0 bottom-0 bg-gradient-to-r from-[#3da9fc] to-tertiary w-[20%] rounded-full shadow-[0_0_15px_rgba(255,255,255,0.5)]"
+                    initial={{ left: "40%" }}
+                    animate={{
+                      left: ["40%", "60%", "30%", "65%", "45%", "55%"],
+                    }}
+                    transition={{
+                      duration: 2,
+                      ease: "easeInOut",
+                      times: [0, 0.2, 0.4, 0.6, 0.8, 1],
+                    }}
+                    style={{ x: "-50%" }} // Centering fix
+                  />
+                </div>
+
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                  className="text-sm font-bold text-white tracking-widest mt-2"
+                >
+                  DISPUTANDO FORÇA...
+                </motion.div>
               </div>
             ) : gameResult ? (
               <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                initial={{ scale: 0.8, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
                 layout
-                className={`text-center bg-black/40 px-8 py-4 rounded-2xl border border-white/10 shadow-xl flex flex-col items-center gap-2 ${
+                className={`text-center bg-black/40 px-8 py-6 rounded-2xl border border-white/10 shadow-2xl flex flex-col items-center gap-4 w-full max-w-sm backdrop-blur-md ${
                   gameResult.outcome === "win"
-                    ? "border-[#2cb67d] shadow-[0_0_20px_rgba(44,182,125,0.2)]"
+                    ? "border-[#2cb67d] shadow-[0_0_30px_rgba(44,182,125,0.15)]"
                     : gameResult.outcome === "loss"
-                    ? "border-tertiary shadow-[0_0_20px_rgba(239,69,101,0.2)]"
+                    ? "border-tertiary shadow-[0_0_30px_rgba(239,69,101,0.15)]"
                     : ""
                 }`}
               >
-                {gameResult.outcome === "win" && (
-                  <Trophy size={40} className="text-[#2cb67d]" />
-                )}
-                {gameResult.outcome === "loss" && (
-                  <Skull size={40} className="text-tertiary" />
-                )}
+                <div className="relative">
+                  {gameResult.outcome === "win" && (
+                    <motion.div
+                      initial={{ rotate: -180, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                    >
+                      <Trophy
+                        size={56}
+                        className="text-[#2cb67d] drop-shadow-[0_0_15px_rgba(44,182,125,0.6)]"
+                      />
+                    </motion.div>
+                  )}
+                  {gameResult.outcome === "loss" && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                    >
+                      <Skull
+                        size={56}
+                        className="text-tertiary drop-shadow-[0_0_15px_rgba(239,69,101,0.6)]"
+                      />
+                    </motion.div>
+                  )}
+                  {gameResult.outcome === "draw" && (
+                    <Swords size={56} className="text-text-secondary" />
+                  )}
+                </div>
 
-                <div className="flex flex-col gap-0">
+                <div className="flex flex-col gap-1">
                   <h3
-                    className={`text-2xl font-black uppercase ${
+                    className={`text-3xl font-black uppercase tracking-tighter ${
                       gameResult.outcome === "win"
                         ? "text-[#2cb67d]"
                         : gameResult.outcome === "loss"
@@ -308,28 +347,61 @@ const TugOfWar = () => {
                       ? "DERROTA"
                       : "EMPATE"}
                   </h3>
-                  <p className="text-text-secondary text-sm">
+                  <p className="text-text-secondary text-sm font-medium">
                     {gameResult.outcome === "win"
                       ? "Seu time dominou a arena!"
-                      : "O time inimigo foi mais forte."}
+                      : gameResult.outcome === "loss"
+                      ? "O time inimigo foi mais forte."
+                      : "Forças equivalentes."}
                   </p>
+                </div>
+
+                <div className="flex gap-8 w-full justify-center text-sm font-mono mt-2 bg-black/30 p-2 rounded-lg border border-white/5">
+                  <div className="flex flex-col">
+                    <span className="text-text-secondary text-[10px] uppercase">
+                      Sua Força
+                    </span>
+                    <span className="text-[#3da9fc] font-bold">
+                      {gameResult.myForce}
+                    </span>
+                  </div>
+                  <div className="w-[1px] bg-white/10"></div>
+                  <div className="flex flex-col">
+                    <span className="text-text-secondary text-[10px] uppercase">
+                      Inimigo
+                    </span>
+                    <span className="text-tertiary font-bold">
+                      {gameResult.enemyForce}
+                    </span>
+                  </div>
                 </div>
 
                 <button
                   onClick={resetGame}
-                  className="mt-2 bg-transparent border border-text-secondary text-text-main px-4 py-1.5 rounded-lg flex items-center gap-2 transition-all hover:bg-white/10 hover:-translate-y-[2px] text-sm"
+                  className="mt-2 w-full bg-primary hover:bg-primary/90 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg cursor-pointer"
                 >
-                  <RefreshCw size={16} /> Jogar Novamente
+                  <RefreshCw size={18} /> Jogar Novamente
                 </button>
               </motion.div>
             ) : (
               <button
                 onClick={startGame}
                 disabled={myTeam.length !== 3}
-                className="flex flex-col items-center gap-1 px-8 py-3 rounded-full border-none bg-primary text-white font-bold text-lg shadow-[0_0_20px_rgba(255,137,6,0.3)] transition-all cursor-pointer hover:scale-105 hover:shadow-[0_0_30px_rgba(255,137,6,0.6)] disabled:bg-[#444] disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100"
+                className="group relative flex flex-col items-center gap-2 px-10 py-4 rounded-full border border-white/10 bg-gradient-to-br from-primary to-[#ff9e42] text-white font-black text-xl shadow-[0_0_20px_rgba(255,137,6,0.4)] transition-all cursor-pointer hover:scale-105 hover:shadow-[0_0_40px_rgba(255,137,6,0.6)] disabled:from-[#444] disabled:to-[#333] disabled:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:scale-100 overflow-hidden"
               >
-                <Swords size={24} />
-                <span>INICIAR BATALHA</span>
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <div className="flex items-center gap-3 relative z-10">
+                  <Swords
+                    size={28}
+                    className={myTeam.length === 3 ? "animate-pulse" : ""}
+                  />
+                  <span>INICIAR BATALHA</span>
+                </div>
+                {myTeam.length < 3 && (
+                  <span className="text-xs font-medium opacity-80 relative z-10 font-mono">
+                    Selecione {3 - myTeam.length} campeões
+                  </span>
+                )}
               </button>
             )}
           </div>
@@ -379,7 +451,7 @@ const TugOfWar = () => {
               ))}
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

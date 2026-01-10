@@ -202,7 +202,7 @@ const Hangman = () => {
 
       {/* Game Content - Visible when playing or finished */}
       {gameState.status !== "select_category" && (
-        <div className="flex flex-1 gap-8 items-start justify-center p-4 animate-fade-in flex-col md:flex-row md:items-start md:justify-center">
+        <div className="flex flex-1 gap-8 items-start justify-center p-4 flex-col md:flex-row md:items-start md:justify-center">
           <div className="bg-card p-8 rounded-2xl flex flex-col items-center shadow-md w-full md:w-auto">
             <svg viewBox="0 0 200 250" className="h-[250px] md:h-auto">
               <line

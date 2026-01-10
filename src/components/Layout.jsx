@@ -6,7 +6,7 @@ const Layout = () => {
     <div className="flex flex-row min-h-screen bg-background">
       <Sidebar />
       <main className="flex-1 flex flex-col overflow-x-hidden relative h-screen overflow-y-auto scrollbar-thin">
-        <div className="w-full h-full m-0 p-8 flex flex-col max-w-full md:p-4">
+        <div className="w-full h-full m-0 p-8 flex flex-col max-w-full md:p-4 perspective-[1000px]">
           <Outlet />
         </div>
       </main>

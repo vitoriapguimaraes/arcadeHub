@@ -117,7 +117,7 @@ const Guessing = () => {
       />
 
       {!gameMode ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-8 animate-fade-in relative z-10">
+        <div className="flex-1 flex flex-col items-center justify-center gap-8 relative z-10">
           <div className="bg-card p-8 rounded-2xl flex flex-col items-center shadow-xl border border-white/5 max-w-lg w-full text-center">
             <HelpCircle size={64} className="text-primary mb-4" />
             <h3 className="text-2xl font-bold text-white mb-6">
@@ -158,7 +158,7 @@ const Guessing = () => {
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 animate-fade-in">
+        <div className="flex-1 flex flex-col items-center justify-center gap-4">
           <div className="bg-card w-full max-w-md p-8 rounded-3xl shadow-2xl border border-white/5 flex flex-col items-center relative">
             <button
               onClick={resetSelection}
