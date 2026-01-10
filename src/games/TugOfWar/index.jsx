@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Swords, RefreshCw, Trophy, Skull } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import GameHeader from "../../components/GameHeader";
 
 const VERSION = "15.7.1";
 
@@ -10,6 +11,7 @@ const TugOfWar = () => {
   const [myTeam, setMyTeam] = useState([]);
   const [enemyTeam, setEnemyTeam] = useState([]);
   const [gameResult, setGameResult] = useState(null);
+  const [score, setScore] = useState({ wins: 0, losses: 0 });
   const [searchTerm, setSearchTerm] = useState("");
   const [isBattling, setIsBattling] = useState(false);
 
@@ -78,9 +80,15 @@ const TugOfWar = () => {
       const enemyForce = calculateForce(enemies);
 
       let result = "";
-      if (myForce > enemyForce) result = "win";
-      else if (myForce < enemyForce) result = "loss";
-      else result = "draw";
+      if (myForce > enemyForce) {
+        result = "win";
+        setScore((prev) => ({ ...prev, wins: prev.wins + 1 }));
+      } else if (myForce < enemyForce) {
+        result = "loss";
+        setScore((prev) => ({ ...prev, losses: prev.losses + 1 }));
+      } else {
+        result = "draw";
+      }
 
       setGameResult({
         outcome: result,
@@ -98,6 +106,11 @@ const TugOfWar = () => {
     setSearchTerm("");
   };
 
+  const resetSession = () => {
+    setScore({ wins: 0, losses: 0 });
+    resetGame();
+  };
+
   const filteredChampions = Object.entries(champions).filter(([_, champ]) =>
     champ.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -113,16 +126,12 @@ const TugOfWar = () => {
 
   return (
     <div className="flex flex-col h-full w-full gap-2 overflow-hidden">
-      <header className="flex flex-col md:flex-row justify-between items-center w-full p-4 bg-black/20 rounded-xl gap-4 shrink-0">
-        <div>
-          <h1 className="text-primary text-2xl font-bold drop-shadow-[0_0_10px_rgba(255,137,6,0.3)] m-0 text-left">
-            League of Legends: Cabo de Guerra
-          </h1>
-          <p className="text-text-secondary text-sm md:text-base font-medium m-0 text-left mt-1 opacity-80">
-            Monte seu time de 3 campeões e desafie os oponentes!
-          </p>
-        </div>
-      </header>
+      <GameHeader
+        title="League of Legends: Cabo de Guerra"
+        subtitle="Monte seu time de 3 campeões e desafie os oponentes!"
+        score={score}
+        onResetSession={resetSession}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-4 flex-1 min-h-0 pb-2 overflow-hidden">
         {/* LEFT COLUMN: Champion Draft */}

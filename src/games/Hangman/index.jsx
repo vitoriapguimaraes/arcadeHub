@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { RefreshCw, Play, Trophy, XCircle, ArrowLeft } from "lucide-react";
+import GameHeader from "../../components/GameHeader";
 
 // Simple accent removal for comparison
 const normalize = (str) =>
@@ -149,33 +150,16 @@ const Hangman = () => {
 
   return (
     <div className="flex flex-col h-full w-full gap-4">
-      {/* Persistent Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center w-full mb-8 p-4 bg-black/20 rounded-xl gap-4">
-        <h1 className="text-primary font-bold text-2xl drop-shadow-[0_0_10px_rgba(255,137,6,0.3)]">
-          Jogo da Forca
-        </h1>
-        <p className="text-text-secondary text-lg font-medium m-0 text-center">
-          {gameState.status === "select_category"
+      <GameHeader
+        title="Jogo da Forca"
+        subtitle={
+          gameState.status === "select_category"
             ? "Escolha uma categoria para começar:"
-            : "Boa sorte!"}
-        </p>
-        <div className="flex gap-4 text-base text-text-secondary items-center bg-black/30 px-4 py-2 rounded-full whitespace-nowrap">
-          <span>Sessão: </span>
-          <span className="flex items-center gap-2 text-[#2cb67d]">
-            <Trophy size={16} /> {score.wins}
-          </span>
-          <span className="flex items-center gap-2 text-tertiary">
-            <XCircle size={16} /> {score.losses}
-          </span>
-          <button
-            onClick={resetSession}
-            className="btn-reset-session flex items-center p-1 rounded-full text-text-secondary transition-all hover:bg-white/10 hover:text-primary hover:rotate-180 ml-2 bg-transparent border-none cursor-pointer"
-            title="Resetar Sessão"
-          >
-            <RefreshCw size={16} />
-          </button>
-        </div>
-      </div>
+            : "Boa sorte!"
+        }
+        score={score}
+        onResetSession={resetSession}
+      />
 
       {/* Persistent Category Selection & Game Status */}
       <div className="flex items-center gap-4 mb-8 min-h-[64px] relative">
