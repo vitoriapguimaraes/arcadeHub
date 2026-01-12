@@ -2,7 +2,7 @@
 
 > ArcadeHub é uma plataforma web moderna que consolida diversos jogos clássicos e interativos em uma única interface unificada. Este projeto representa a evolução e persistência no aprendizado de desenvolvimento Fullstack, migrando jogos originalmente criados em diferentes tecnologias (Python, JS puro, HTML/CSS) para uma aplicação React robusta e responsiva.
 
-![Demonstração do ArcadeHub](https://github.com/vitoriapguimaraes/arcadeHub/blob/main/demonstrations/navigation.gif)
+![Demonstração do ArcadeHub](https://github.com/vitoriapguimaraes/arcadeHub/blob/main/public/demo/navigation.gif)
 
 ## 🎮 Jogos Incluídos
 
