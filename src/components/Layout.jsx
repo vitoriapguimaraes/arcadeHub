@@ -26,8 +26,8 @@ const Layout = () => {
       />
 
       <Sidebar />
-      <main className="flex-1 flex flex-col overflow-x-hidden relative h-screen overflow-y-auto scrollbar-thin z-10">
-        <div className="w-full min-h-full m-0 p-8 flex flex-col max-w-full md:p-4 perspective-[1000px]">
+      <main className="flex-1 flex flex-col overflow-hidden relative h-screen z-10">
+        <div className="w-full h-full m-0 p-8 flex flex-col max-w-full md:p-4 perspective-[1000px]">
           <AnimatePresence mode="popLayout">
             <motion.div
               key={location.pathname}
@@ -35,7 +35,7 @@ const Layout = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.4 }}
-              className="w-full flex-1 flex flex-col"
+              className="w-full flex-1 flex flex-col relative overflow-y-auto overflow-x-hidden"
             >
               <Outlet />
             </motion.div>
