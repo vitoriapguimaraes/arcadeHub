@@ -52,37 +52,46 @@ const games = [
 
 const Dashboard = () => {
   return (
-    <div className="text-center">
-      <h1 className="text-4xl font-bold mb-8">ArcadeHub</h1>
-      <p className="text-text-secondary mb-8 text-lg">
-        Explore nossa coleção de jogos clássicos recriados com tecnologia
-        moderna. Selecione um jogo na barra lateral ou nos cards abaixo para
-        começar.
-      </p>
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,2fr))] gap-8 p-4">
-        {games.map((game) => (
-          <Link
-            to={game.path}
-            key={game.id}
-            className="group bg-card rounded-2xl p-8 flex flex-col items-center gap-6 no-underline text-text-main transition-transform duration-300 relative overflow-hidden shadow-md border border-white/5 hover:-translate-y-2 hover:shadow-xl"
-            style={{ "--hover-color": game.color }} // Keeping if needed, but not used in Tailwind unless arbitrary
-          >
-            <div
-              className="z-10 bg-white/5 p-6 rounded-full transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
-              style={{ color: game.color }}
+    <div className="text-center h-full flex flex-col justify-center">
+      <div className="flex-none pt-4 md:pt-0">
+        <h1 className="text-4xl font-bold mb-4">ArcadeHub</h1>
+        <p className="text-text-secondary mb-6 text-lg max-w-2xl mx-auto px-4">
+          Explore nossa coleção de jogos clássicos recriados com tecnologia
+          moderna. Selecione um jogo abaixo para começar.
+        </p>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center w-full min-h-0">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4 max-w-[1600px] w-full items-stretch justify-items-center">
+          {games.map((game) => (
+            <Link
+              to={game.path}
+              key={game.id}
+              className="group bg-card rounded-2xl p-4 flex flex-col items-center justify-center gap-3 no-underline text-text-main transition-all duration-300 relative overflow-hidden shadow-md border border-white/5 hover:-translate-y-2 hover:shadow-xl w-full max-w-xs h-56 lg:h-64"
+              style={{ "--hover-color": game.color }}
             >
-              {game.icon}
-            </div>
-            <div className="z-10">
-              <h3 className="text-2xl mb-2 font-bold">{game.title}</h3>
-              <p className="text-text-secondary text-sm">{game.description}</p>
-            </div>
-            <div
-              className="absolute inset-0 opacity-0 transition-opacity duration-300 z-0 mix-blend-overlay group-hover:opacity-10"
-              style={{ backgroundColor: game.color }}
-            ></div>
-          </Link>
-        ))}
+              <div
+                className="z-10 bg-white/5 p-5 rounded-full transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6"
+                style={{ color: game.color }}
+              >
+                {game.icon}
+              </div>
+              <div className="z-10">
+                <h3 className="text-xl mb-1 font-bold">{game.title}</h3>
+                <p className="text-text-secondary text-sm hidden xl:block">
+                  {game.description}
+                </p>
+                <p className="text-text-secondary text-xs xl:hidden line-clamp-2">
+                  {game.description}
+                </p>
+              </div>
+              <div
+                className="absolute inset-0 opacity-0 transition-opacity duration-300 z-0 mix-blend-overlay group-hover:opacity-10"
+                style={{ backgroundColor: game.color }}
+              ></div>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
